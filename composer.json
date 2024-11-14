@@ -1,6 +1,6 @@
 {
     "name": "abdursoft/laravel-bkash",
-    "description": "This package or Library for Bkash developed by abdursoft. This library come with MIT license, so you can easily change anything what ever your needs.This package will work for bkash tokenized payment system and the version is v1.2.0-beta. If they are updated their version and the library couldn't work properly, please contact with abdursoft@gmail.com",
+    "description": "This package or Library for Bkash, developed by abdursoft. This library come with MIT license, so you can easily change anything what ever your needs.This package will work for bkash tokenized payment system. If they are updated their version and the library couldn't work properly, please contact with abdursoft@gmail.com",
     "type": "library",
     "license": "MIT",
     "version": "0.0.4",
