@@ -1,8 +1,6 @@
 <?php
 namespace Abdursoft\LaravelBkash;
 
-use Exception;
-
 class Bkash {
     protected $base_url;
     protected $callbackURL;
@@ -62,22 +60,18 @@ class Bkash {
     /**
      * Create payment intent
      */
-    public function paymentCreate($ext,$amount,$invoice)
+    public function paymentCreate($reference,$amount,$invoice)
     {
         $requestbody = array(
             'mode' => '0011',
             'amount' => $amount,
             'currency' => 'BDT',
             'intent' => 'sale',
-            'payerReference' => $ext,
+            'payerReference' => $reference,
             'merchantInvoiceNumber' => $invoice,
             'callbackURL' => $this->callbackURL
         );
-        $requestbodyJson = json_encode($requestbody);
-
-        $resultdata = $this->requestHandler('POST',$requestbodyJson,"$this->base_url/create");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',$requestbody,"$this->base_url/create");
     }
 
     /**
@@ -89,9 +83,7 @@ class Bkash {
             'paymentID' => $paymentID
         );
 
-        $resultdata = $this->requestHandler('POST',json_encode($request_body),"$this->base_url/execute");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',$request_body,"$this->base_url/execute");
     }
 
     /**
@@ -102,18 +94,14 @@ class Bkash {
         $requestbody = array(
             'paymentID' => $paymentID
         );
-        $resultdata = $this->requestHandler('POST',json_encode($requestbody),"$this->base_url/payment/status");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',$requestbody,"$this->base_url/payment/status");
     }
 
     /**
      * Payment capture
      */
     public function paymentCapture($paymentID){
-        $resultdata = $this->requestHandler('POST',null,"$this->base_url/payment/capture/$paymentID");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',null,"$this->base_url/payment/capture/$paymentID");
     }
 
     /**
@@ -124,9 +112,7 @@ class Bkash {
         $requestbody = array(
             'trxID' => $txn
         );
-        $resultdata = $this->requestHandler('POST',json_encode($requestbody),"$this->base_url/general/searchTransaction");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',$requestbody,"$this->base_url/general/searchTransaction");
     }
 
     /**
@@ -141,9 +127,7 @@ class Bkash {
             'reason'    => $reason,
             'sku'       => $sku
         );
-        $resultdata = $this->requestHandler('POST',json_encode($requestbody),"$this->base_url/payment/refund");
-        $obj = json_decode($resultdata, true);
-        return $obj;
+        return $this->requestHandler('POST',$requestbody,"$this->base_url/payment/refund");
     }
 
     /**
@@ -157,32 +141,27 @@ class Bkash {
             "receiverMSISDN" => $msisdn
         ];
 
-        $payout = $this->requestHandler('POST',$body,"$this->base_url/payment/b2cPayment");
-        $obj = json_decode($payout, true);
-        return $obj;
+        return $this->requestHandler('POST',$body,"$this->base_url/payment/b2cPayment");
     }
 
     /**
      * Request handler
      */
     protected function requestHandler($method,$body=null,$url){
-        try {
-            $header = array(
-                'Content-Type:application/json',
-                'authorization:' . $this->token(),
-                'x-app-key:' . $this->appKey
-            );
-            curl_setopt($url, CURLOPT_HTTPHEADER, $header);
-            curl_setopt($url, CURLOPT_CUSTOMREQUEST, $method);
-            curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
-            $body !== null ? curl_setopt($url, CURLOPT_POSTFIELDS, json_encode($body)) : true;
-            curl_setopt($url, CURLOPT_FOLLOWLOCATION, 1);
-            $resultdatax = curl_exec($url);
-            $obj = json_decode($resultdatax, true);
-            curl_close($url);
-            return $obj;
-        } catch (\Throwable $th) {
-            new Exception("Invalid request or data format",400);
-        }
+        $header = array(
+            'Content-Type:application/json',
+            'Authorization:' . $this->token(),
+            'X-APP-Key:' . $this->appKey
+        );
+        $url = curl_init($url);
+        curl_setopt($url, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($url, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
+        $body !== null ? curl_setopt($url, CURLOPT_POSTFIELDS, json_encode($body)) : "";
+        curl_setopt($url, CURLOPT_FOLLOWLOCATION, 1);
+        $resultdatax = curl_exec($url);
+        $obj = json_decode($resultdatax, true);
+        curl_close($url);
+        return $obj;
     }
 }
