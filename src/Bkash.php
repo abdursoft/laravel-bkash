@@ -145,6 +145,32 @@ class Bkash {
     }
 
     /**
+     * Check the organization balance
+     */
+    public function balance(){
+        return $this->requestHandler('GET',null,"$this->base_url/payment/organizationBalance");
+    }
+
+
+    /**
+     * Intra account transfer
+     */
+    public function transfer($amount,$currency,$transferType){
+
+        if($transferType == 'Collection2Disbursement' || $transferType == 'Disbursement2Collection'){
+            $body = [
+                'amount' => $amount,
+                'currency' => $currency,
+                'transferType' => $transferType
+            ];
+            return $this->requestHandler('POST',$body,"$this->base_url/payment/intraAccountTransfer");
+        }else{
+            return "Invalid transfer type, Please use Collection2Disbursement or Disbursement2Collection";
+        }
+
+    }
+
+    /**
      * Request handler
      */
     protected function requestHandler($method,$body=null,$url){
