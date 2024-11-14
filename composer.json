@@ -1,0 +1,19 @@
+{
+    "name": "abdursoft/laravel-bkash",
+    "description": "A PHP | Laravel composer library for bkash tokenized payment system.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Abdursoft\\LaravelBkash\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "abdursoft",
+            "email": "abdursoft@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
