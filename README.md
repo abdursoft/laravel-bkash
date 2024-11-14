@@ -20,8 +20,6 @@ If the package/library successfully installed on your project then make a contro
 
 If your controller has been successfully created, open with your text editor and replace all code with below code.
 <pre>
-<?php
-
 namespace App\Http\Controllers;
 
 use Abdursoft\LaravelBkash\Bkash;
