@@ -13,6 +13,9 @@ class Bkash {
     protected $appKey;
     protected $appSecret;
 
+    /**
+     * Initialize bkash payment
+     */
     public function __construct($username,$password,$appKey,$appSecret,$paymentMode,$callbackURL)
     {
         $this->appKey = $appKey;
@@ -28,6 +31,9 @@ class Bkash {
         }
     }
 
+    /**
+     * Create bkash token
+     */
     public function token()
     {
         $request_data = array(
@@ -53,7 +59,10 @@ class Bkash {
         return $accessToken['id_token'];
     }
 
-    public function paymentCreate($ext,$amount,$invoice, $callbackURL)
+    /**
+     * Create payment intent
+     */
+    public function paymentCreate($ext,$amount,$invoice)
     {
         $requestbody = array(
             'mode' => '0011',
@@ -62,7 +71,7 @@ class Bkash {
             'intent' => 'sale',
             'payerReference' => $ext,
             'merchantInvoiceNumber' => $invoice,
-            'callbackURL' => $callbackURL
+            'callbackURL' => $this->callbackURL
         );
         $requestbodyJson = json_encode($requestbody);
 
@@ -71,6 +80,9 @@ class Bkash {
         return $obj;
     }
 
+    /**
+     * Payment execute
+     */
     public function paymentExecute($paymentID)
     {
         $request_body = array(
@@ -82,6 +94,9 @@ class Bkash {
         return $obj;
     }
 
+    /**
+     * Payment query | Searching
+     */
     public function paymentQuery($paymentID)
     {
         $requestbody = array(
@@ -92,6 +107,18 @@ class Bkash {
         return $obj;
     }
 
+    /**
+     * Payment capture
+     */
+    public function paymentCapture($paymentID){
+        $resultdata = $this->requestHandler('POST',null,"$this->base_url/payment/capture/$paymentID");
+        $obj = json_decode($resultdata, true);
+        return $obj;
+    }
+
+    /**
+     * Payment query
+     */
     public function transactionQuery($txn)
     {
         $requestbody = array(
@@ -102,6 +129,9 @@ class Bkash {
         return $obj;
     }
 
+    /**
+     * Refunc a payment
+     */
     public function refund($paymentID, $transactionID, $amount, $sku, $reason)
     {
         $requestbody = array(
@@ -116,18 +146,36 @@ class Bkash {
         return $obj;
     }
 
-    protected function requestHandler($method,$body,$url){
+    /**
+     * Payout users
+     */
+    public function payout($amount, $invoice, $msisdn){
+        $body = [
+            "amount" => $amount,
+            "currency" => "BDT",
+            "merchantInvoiceNumber" => $invoice,
+            "receiverMSISDN" => $msisdn
+        ];
+
+        $payout = $this->requestHandler('POST',$body,"$this->base_url/payment/b2cPayment");
+        $obj = json_decode($payout, true);
+        return $obj;
+    }
+
+    /**
+     * Request handler
+     */
+    protected function requestHandler($method,$body=null,$url){
         try {
             $header = array(
                 'Content-Type:application/json',
                 'authorization:' . $this->token(),
                 'x-app-key:' . $this->appKey
             );
-            $requestbodyJson = json_encode($body);
             curl_setopt($url, CURLOPT_HTTPHEADER, $header);
             curl_setopt($url, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($url, CURLOPT_POSTFIELDS, $requestbodyJson);
+            $body !== null ? curl_setopt($url, CURLOPT_POSTFIELDS, json_encode($body)) : true;
             curl_setopt($url, CURLOPT_FOLLOWLOCATION, 1);
             $resultdatax = curl_exec($url);
             $obj = json_decode($resultdatax, true);
